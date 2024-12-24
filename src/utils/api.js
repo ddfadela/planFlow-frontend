@@ -2,11 +2,17 @@ const fetchApi = async (endpoint, method, body = null) => {
   const baseUrl = process.env.API_URL || "http://localhost:8000/api";
 
   try {
+    const authToken = localStorage.getItem("authToken");
+    const headers = {
+      "Content-Type": "application/json",
+    };
+    if (authToken) {
+      headers.Authorization = `Token ${authToken}`;
+    }
+
     const response = await fetch(`${baseUrl}${endpoint}`, {
       method,
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers,
       body: body ? JSON.stringify(body) : null,
     });
 

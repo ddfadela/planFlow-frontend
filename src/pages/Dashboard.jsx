@@ -1,5 +1,5 @@
-import { Layout, Button, Drawer } from "antd";
-import { Link } from "react-router-dom";
+import { Layout, Button, Drawer, message } from "antd";
+import { Link, useNavigate } from "react-router-dom";
 import {
   AppstoreAddOutlined,
   EditOutlined,
@@ -7,11 +7,13 @@ import {
   MenuOutlined,
 } from "@ant-design/icons";
 import { useState } from "react";
+import fetchApi from "../utils/api";
 
 const { Header, Content } = Layout;
 
 const Dashboard = () => {
   const [drawerVisible, setDrawerVisible] = useState(false);
+  const navigate = useNavigate();
 
   const showDrawer = () => {
     setDrawerVisible(true);
@@ -19,6 +21,19 @@ const Dashboard = () => {
 
   const closeDrawer = () => {
     setDrawerVisible(false);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetchApi("/logout/", "POST");
+
+      localStorage.removeItem("authToken");
+      message.success("Logged out successfully!");
+      navigate("/login");
+    } catch (error) {
+      console.error("Error during logout:", error.message);
+      message.error("Failed to logout. Please try again.");
+    }
   };
 
   return (
@@ -45,8 +60,9 @@ const Dashboard = () => {
               type="text"
               icon={<LogoutOutlined />}
               className="text-white hover:text-gray-200"
+              onClick={handleLogout}
             >
-              <Link to="/logout">Logout</Link>
+              Logout
             </Button>
           </div>
           <Button
@@ -80,9 +96,10 @@ const Dashboard = () => {
           <Button
             type="text"
             className="w-full text-left flex items-center space-x-2"
+            onClick={handleLogout}
           >
             <LogoutOutlined />
-            <Link to="/logout">Logout</Link>
+            Logout
           </Button>
         </Drawer>
         <Content className="p-6">
