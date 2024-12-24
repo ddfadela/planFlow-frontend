@@ -1,8 +1,27 @@
-import { Form, Input, Button, Checkbox } from "antd";
+import { Form, Input, Button, Checkbox, message } from "antd";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import fetchApi from "../utils/api";
 
 const LoginForm = () => {
-  const onFinish = (values) => {
-    console.log("Success:", values);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const onFinish = async (values) => {
+    setLoading(true);
+    try {
+      const response = await fetchApi("/login/", "POST", {
+        username: values.username,
+        password: values.password,
+      });
+      message.success("Login successful!");
+      localStorage.setItem("authToken", response.token);
+      navigate("/dashboard");
+    } catch (error) {
+      message.error(error.message || "Login failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -30,12 +49,8 @@ const LoginForm = () => {
         <Input.Password />
       </Form.Item>
 
-      <Form.Item name="remember" valuePropName="checked">
-        <Checkbox>Remember me</Checkbox>
-      </Form.Item>
-
       <Form.Item>
-        <Button type="primary" htmlType="submit" block>
+        <Button type="primary" htmlType="submit" block loading={loading}>
           Log in
         </Button>
       </Form.Item>

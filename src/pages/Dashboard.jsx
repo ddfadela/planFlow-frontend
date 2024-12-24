@@ -65,21 +65,21 @@ const Dashboard = () => {
         >
           <Button
             type="text"
-            className="block w-full text-left flex items-center space-x-2"
+            className="w-full text-left flex items-center space-x-2"
           >
             <AppstoreAddOutlined />
             <Link to="/create-project">New Project</Link>
           </Button>
           <Button
             type="text"
-            className="block w-full text-left flex items-center space-x-2"
+            className="w-full text-left flex items-center space-x-2"
           >
             <EditOutlined />
             <Link to="/edit-projects">Edit Projects</Link>
           </Button>
           <Button
             type="text"
-            className="block w-full text-left flex items-center space-x-2"
+            className="w-full text-left flex items-center space-x-2"
           >
             <LogoutOutlined />
             <Link to="/logout">Logout</Link>
