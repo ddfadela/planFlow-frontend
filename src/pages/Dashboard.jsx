@@ -8,6 +8,7 @@ import {
 } from "@ant-design/icons";
 import { useState } from "react";
 import fetchApi from "../utils/api";
+import ProjectList from "../components/ProjectList";
 
 const { Header, Content } = Layout;
 
@@ -103,7 +104,7 @@ const Dashboard = () => {
           </Button>
         </Drawer>
         <Content className="p-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+          <ProjectList />
         </Content>
       </Layout>
     </Layout>
