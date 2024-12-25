@@ -1,29 +1,47 @@
-export const capitalizeFirstLetter = (text) => {
-  return text.toLowerCase().replace(/^\w/, (char) => char.toUpperCase());
+export const PROJECT_STATUS = {
+  NOT_STARTED: {
+    value: "NOT_STARTED",
+    label: "Not Started",
+    color: "orange",
+  },
+  IN_PROGRESS: {
+    value: "IN_PROGRESS",
+    label: "In Progress",
+    color: "blue",
+  },
+  COMPLETED: {
+    value: "COMPLETED",
+    label: "Completed",
+    color: "green",
+  },
+};
+
+export const PROJECT_PRIORITY = {
+  HIGH: {
+    value: "HIGH",
+    label: "High",
+    color: "red",
+  },
+  MEDIUM: {
+    value: "MEDIUM",
+    label: "Medium",
+    color: "orange",
+  },
+  LOW: {
+    value: "LOW",
+    label: "Low",
+    color: "green",
+  },
 };
 
 export const getStatusColor = (status) => {
-  switch (status) {
-    case "NOT_STARTED":
-      return "orange";
-    case "IN_PROGRESS":
-      return "blue";
-    case "COMPLETED":
-      return "green";
-    default:
-      return "red";
-  }
+  return PROJECT_STATUS[status]?.color || "red";
 };
 
 export const getPriorityColor = (priority) => {
-  switch (priority) {
-    case "HIGH":
-      return "red";
-    case "MEDIUM":
-      return "orange";
-    case "LOW":
-      return "green";
-    default:
-      return "blue";
-  }
+  return PROJECT_PRIORITY[priority]?.color || "blue";
+};
+
+export const capitalizeFirstLetter = (text) => {
+  return text.toLowerCase().replace(/^\w/, (char) => char.toUpperCase());
 };
