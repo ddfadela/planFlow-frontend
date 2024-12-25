@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import fetchApi from "../utils/api";
-import { Table, Spin, message, Tag } from "antd";
+import { Table, Spin, message, Tag, Button, Popconfirm } from "antd";
+import { Link } from "react-router-dom";
+
 import {
   getPriorityColor,
   capitalizeFirstLetter,
   getStatusColor,
 } from "../utils/functions";
-
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 const truncateText = (text, maxLength) => {
   if (text.length > maxLength) {
     return `${text.substring(0, maxLength)}...`;
@@ -17,7 +19,7 @@ const truncateText = (text, maxLength) => {
 const ProjectList = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  console.log(process.env.REACT_APP_API_URL);
   useEffect(() => {
     const fetchProjects = async () => {
       try {
@@ -33,6 +35,23 @@ const ProjectList = () => {
     fetchProjects();
   }, []);
 
+  const handleDelete = async (projectId) => {
+    try {
+      const response = await fetchApi(
+        `/projects/${projectId}/delete/`,
+        "DELETE"
+      );
+      if (response.status === 204) {
+        setProjects((prevProjects) =>
+          prevProjects.filter((project) => project.id !== projectId)
+        );
+        message.success("Project deleted successfully");
+      }
+    } catch (error) {
+      message.error("Failed to delete the project.");
+    }
+  };
+
   const columns = [
     {
       title: "Image",
@@ -41,9 +60,9 @@ const ProjectList = () => {
       render: (images) =>
         images.length > 0 ? (
           <img
-            src={images[0].image}
+            src={`${process.env.REACT_APP_API_URL}${images[0].image}`}
             alt="project"
-            style={{ width: 100, height: 100, objectFit: "cover" }}
+            style={{ width: 100, height: 100, objectFit: "contain" }}
           />
         ) : (
           <div
@@ -109,11 +128,31 @@ const ProjectList = () => {
       dataIndex: "end_date",
       key: "end_date",
     },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (text, record) => (
+        <div>
+          {/* Using icons for actions */}
+          <Link to={`/update-project/${record.id}`}>
+            <EditOutlined style={{ fontSize: "20px", color: "inherit" }} />
+          </Link>
+          <Popconfirm
+            title="Are you sure to delete this project?"
+            onConfirm={() => handleDelete(record.id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button type="link" danger icon={<DeleteOutlined />} />
+          </Popconfirm>
+        </div>
+      ),
+    },
   ];
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center">
+      <div className="flex justify-center items-center over">
         <Spin size="large" />
       </div>
     );
