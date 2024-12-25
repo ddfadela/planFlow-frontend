@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import fetchApi from "../utils/api";
-import { Table, Spin, message, Tag, Button, Popconfirm } from "antd";
+import { Table, Spin, message, Tag, Button, Popconfirm, Tooltip } from "antd";
 import { Link } from "react-router-dom";
 
 import {
@@ -8,7 +8,11 @@ import {
   capitalizeFirstLetter,
   getStatusColor,
 } from "../utils/functions";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  ExportOutlined,
+} from "@ant-design/icons";
 const truncateText = (text, maxLength) => {
   if (text.length > maxLength) {
     return `${text.substring(0, maxLength)}...`;
@@ -19,7 +23,6 @@ const truncateText = (text, maxLength) => {
 const ProjectList = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
-  console.log(process.env.REACT_APP_API_URL);
   useEffect(() => {
     const fetchProjects = async () => {
       try {
@@ -51,7 +54,53 @@ const ProjectList = () => {
       message.error("Failed to delete the project.");
     }
   };
+  const handleExport = async (projectId) => {
+    try {
+      const response = await fetchApi(
+        `/projects/${projectId}/export-pdf/`,
+        "GET"
+      );
 
+      if (!response.ok) {
+        throw new Error(
+          `Failed to generate PDF: ${response.status} ${response.statusText}`
+        );
+      }
+
+      // Read the blob only once
+      const blob = await response.blob();
+
+      if (blob.size === 0) {
+        throw new Error("Received empty PDF data");
+      }
+
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `project_${projectId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+
+      // Cleanup
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      }, 100);
+
+      message.success("PDF downloaded successfully!");
+    } catch (error) {
+      // Improved error handling with more specific messages
+      let errorMessage = "Failed to download PDF";
+      if (error.message.includes("empty PDF data")) {
+        errorMessage = "The generated PDF is empty. Please try again.";
+      } else if (error.message.includes("Failed to generate PDF")) {
+        errorMessage = `Server error: ${error.message}`;
+      }
+
+      message.error(errorMessage);
+      console.error("PDF Export Error:", error);
+    }
+  };
   const columns = [
     {
       title: "Image",
@@ -133,7 +182,6 @@ const ProjectList = () => {
       key: "actions",
       render: (text, record) => (
         <div>
-          {/* Using icons for actions */}
           <Link to={`/update-project/${record.id}`}>
             <EditOutlined style={{ fontSize: "20px", color: "inherit" }} />
           </Link>
@@ -145,6 +193,15 @@ const ProjectList = () => {
           >
             <Button type="link" danger icon={<DeleteOutlined />} />
           </Popconfirm>
+
+          {/* Export Icon (New Action) */}
+          <Tooltip title="Export the PDF">
+            <Button
+              type="link"
+              icon={<ExportOutlined />}
+              onClick={() => handleExport(record.id)}
+            />
+          </Tooltip>
         </div>
       ),
     },
