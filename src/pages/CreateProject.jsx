@@ -16,51 +16,42 @@ const CreateProject = () => {
     try {
       const formData = new FormData();
 
+      // Append form values
       Object.keys(values).forEach((key) => {
         if (key === "start_date" || key === "end_date") {
           formData.append(key, moment(values[key]).format("YYYY-MM-DD"));
-        } else if (values[key] !== undefined && values[key] !== null) {
+        } else if (
+          key !== "image1" &&
+          key !== "image2" &&
+          values[key] != null
+        ) {
           formData.append(key, values[key]);
         }
       });
 
-      // Add image files if they exist
+      // Append images
       if (fileList1.length > 0 && fileList1[0].originFileObj) {
         formData.append("image1", fileList1[0].originFileObj);
       }
       if (fileList2.length > 0 && fileList2[0].originFileObj) {
         formData.append("image2", fileList2[0].originFileObj);
       }
-      const formDataObject = {};
-      formData.forEach((value, key) => {
-        formDataObject[key] = value instanceof File ? value.name : value;
-      });
 
-      console.log(formDataObject);
-      const response = await fetchApi(
-        "/projects/create/",
-        "POST",
-        formDataObject
-      );
-
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-
+      await fetchApi("/projects/create/", "POST", formData, true);
       message.success("Project created successfully!");
       navigate("/dashboard");
     } catch (error) {
-      console.error("Error creating project:", error);
-      message.error("Failed to create project. Please try again.");
+      message.error(error.message || "Failed to create project");
     }
   };
-  // Handle file list updates
-  const handleFileChange1 = ({ fileList }) => {
-    setFileList1(fileList);
-  };
 
-  const handleFileChange2 = ({ fileList }) => {
-    setFileList2(fileList);
+  const handleFileChange = (fileList, setFileList) => {
+    const newFile = fileList[0];
+    if (newFile && newFile.size > 5 * 1024 * 1024) {
+      message.error("Image must be smaller than 5MB");
+      return;
+    }
+    setFileList(fileList);
   };
 
   return (
@@ -150,13 +141,18 @@ const CreateProject = () => {
         </Form.Item>
 
         {/* Updated Upload components */}
+        {/* Previous form fields remain the same */}
+
         <Form.Item label="Project Images">
           <Form.Item name="image1">
             <Upload
               fileList={fileList1}
-              onChange={handleFileChange1}
-              beforeUpload={() => false} // Prevent auto upload
+              onChange={({ fileList }) =>
+                handleFileChange(fileList, setFileList1)
+              }
+              beforeUpload={() => false}
               maxCount={1}
+              accept="image/*"
             >
               <Button>Upload Image 1</Button>
             </Upload>
@@ -164,9 +160,12 @@ const CreateProject = () => {
           <Form.Item name="image2">
             <Upload
               fileList={fileList2}
-              onChange={handleFileChange2}
-              beforeUpload={() => false} // Prevent auto upload
+              onChange={({ fileList }) =>
+                handleFileChange(fileList, setFileList2)
+              }
+              beforeUpload={() => false}
               maxCount={1}
+              accept="image/*"
             >
               <Button>Upload Image 2</Button>
             </Upload>

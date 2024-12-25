@@ -1,19 +1,20 @@
-const fetchApi = async (endpoint, method, body = null) => {
+const fetchApi = async (endpoint, method, body = null, isFormData = false) => {
   const baseUrl = process.env.API_URL || "http://localhost:8000/api";
-
   try {
     const authToken = localStorage.getItem("authToken");
-    const headers = {
-      "Content-Type": "application/json",
-    };
+    const headers = {};
     if (authToken) {
       headers.Authorization = `Token ${authToken}`;
+    }
+
+    if (!isFormData) {
+      headers["Content-Type"] = "application/json";
     }
 
     const response = await fetch(`${baseUrl}${endpoint}`, {
       method,
       headers,
-      body: body ? JSON.stringify(body) : null,
+      body: isFormData ? body : body ? JSON.stringify(body) : null,
     });
 
     if (!response.ok) {
