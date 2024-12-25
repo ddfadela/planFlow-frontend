@@ -41,7 +41,11 @@ const DashboardLayout = () => {
     <Layout className="h-screen overflow-hidden">
       <Layout>
         <Header className="bg-blue-500 p-4 text-white flex justify-between items-center">
-          <h1 className="text-xl">PlanFlow Dashboard</h1>
+          <h1 className="text-xl">
+            <Link to="/dashboard" className="text-white hover:text-gray-200">
+              PlanFlow Dashboard
+            </Link>
+          </h1>
           <div className="hidden md:flex space-x-4">
             <Button
               type="text"

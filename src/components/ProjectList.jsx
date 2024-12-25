@@ -103,7 +103,7 @@ const ProjectList = () => {
       dataIndex: "priority",
       key: "priority",
       render: (priority) => (
-        <Tag color={getPriorityColor(priority)}>
+        <Tag color={getPriorityColor(priority)} className="font-bold">
           {priority ? capitalizeFirstLetter(priority) : "No Priority"}
         </Tag>
       ),
@@ -113,7 +113,7 @@ const ProjectList = () => {
       dataIndex: "status",
       key: "status",
       render: (status) => (
-        <Tag color={getStatusColor(status)}>
+        <Tag color={getStatusColor(status)} className="font-bold">
           {status ? capitalizeFirstLetter(status) : "No Status"}
         </Tag>
       ),
