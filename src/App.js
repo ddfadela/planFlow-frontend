@@ -1,9 +1,10 @@
 import { Navigate, BrowserRouter, Routes, Route } from "react-router-dom";
 import LoginPage from "../src/pages/LoginPage";
 import RegisterPage from "../src/pages/RegisterPage";
+import DashboardLayout from "../src/layouts/DashboardLayout"; // Import the new layout
 import Dashboard from "../src/pages/Dashboard";
 import CreateProject from "../src/pages/CreateProject";
-
+import UpdateProject from "../src/pages/UpdateProject";
 import { PrivateRoute, PublicRoute } from "./components/ProtectedRoutes";
 
 const App = () => {
@@ -18,10 +19,14 @@ const App = () => {
 
         {/* Protected Routes */}
         <Route element={<PrivateRoute />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-        </Route>
-        <Route element={<PrivateRoute />}>
-          <Route path="/create-project" element={<CreateProject />} />
+          <Route element={<DashboardLayout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/create-project" element={<CreateProject />} />
+            <Route
+              path="/update-project/:projectId"
+              element={<UpdateProject />}
+            />
+          </Route>
         </Route>
 
         {/* Default redirect */}
