@@ -1,7 +1,17 @@
-// ProjectForm.js
-import { Form, Input, DatePicker, Select, Upload, Button, message } from "antd";
+import {
+  Form,
+  Input,
+  DatePicker,
+  Select,
+  Upload,
+  Button,
+  message,
+  Spin,
+} from "antd";
 import { PROJECT_STATUS, PROJECT_PRIORITY } from "../utils/functions";
+import { useState } from "react";
 const { Option } = Select;
+const { TextArea } = Input;
 
 const ProjectForm = ({
   form,
@@ -14,8 +24,11 @@ const ProjectForm = ({
   submitButtonText,
   isUpdate = false,
 }) => {
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedDescription, setGeneratedDescription] = useState("");
+
   const handleFileChange = (info, setFileList) => {
-    let fileList = [...info.fileList];
+    let fileList = Array.isArray(info.fileList) ? [...info.fileList] : [];
     fileList = fileList.slice(-1);
 
     if (
@@ -39,6 +52,59 @@ const ProjectForm = ({
     });
 
     setFileList(fileList);
+  };
+
+  const generateDescription = async () => {
+    const projectTitle = form.getFieldValue("title");
+    if (!projectTitle) {
+      message.warning("Please enter a project title first");
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      const api_key = process.env.REACT_APP_HUGGING_FACE_API_KEY;
+      console.log(api_key);
+      const response = await fetch(
+        "https://api-inference.huggingface.co/models/google/flan-t5-large",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${api_key}`,
+          },
+          body: JSON.stringify({
+            inputs: `Write a clear and professional project description for a project called "${projectTitle}". 
+                  Include the main goal, key features, and expected outcomes. 
+                  Keep it concise but informative.`,
+            parameters: {
+              max_length: 200,
+              min_length: 50,
+              do_sample: true,
+              temperature: 0.8,
+              top_p: 0.9,
+            },
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (data[0]?.generated_text) {
+        setGeneratedDescription(data[0].generated_text);
+        form.setFieldsValue({ description: data[0].generated_text });
+        message.success("Description generated successfully!");
+      } else {
+        throw new Error("Failed to generate description");
+      }
+    } catch (error) {
+      console.error("Error generating description:", error);
+      message.error(
+        "Failed to generate description. Please try again or enter manually."
+      );
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const uploadProps = {
@@ -69,12 +135,31 @@ const ProjectForm = ({
 
         <Form.Item
           name="description"
-          label="Description"
+          label={
+            <div className="flex items-center justify-between w-full">
+              <span>Description</span>
+              <Button
+                type="default"
+                onClick={generateDescription}
+                disabled={isGenerating}
+                className="ml-2"
+              >
+                {isGenerating ? (
+                  <Spin size="small" />
+                ) : (
+                  "Generate AI Description"
+                )}
+              </Button>
+            </div>
+          }
           rules={[
             { required: true, message: "Please enter a project description" },
           ]}
         >
-          <Input.TextArea />
+          <TextArea
+            rows={4}
+            placeholder="Enter description manually or generate one using AI"
+          />
         </Form.Item>
 
         <Form.Item
@@ -158,28 +243,20 @@ const ProjectForm = ({
             <>
               <Form.Item name="image1">
                 <Upload
+                  {...uploadProps}
                   fileList={fileList1}
-                  onChange={({ fileList }) =>
-                    handleFileChange(fileList, setFileList1)
-                  }
-                  beforeUpload={() => false}
-                  maxCount={1}
-                  accept="image/*"
+                  onChange={(info) => handleFileChange(info, setFileList1)}
                 >
-                  <Button>Upload Image 1</Button>
+                  <div>Upload Image 1</div>
                 </Upload>
               </Form.Item>
               <Form.Item name="image2">
                 <Upload
+                  {...uploadProps}
                   fileList={fileList2}
-                  onChange={({ fileList }) =>
-                    handleFileChange(fileList, setFileList2)
-                  }
-                  beforeUpload={() => false}
-                  maxCount={1}
-                  accept="image/*"
+                  onChange={(info) => handleFileChange(info, setFileList2)}
                 >
-                  <Button>Upload Image 2</Button>
+                  <div>Upload Image 2</div>
                 </Upload>
               </Form.Item>
             </>
