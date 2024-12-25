@@ -16,6 +16,7 @@ const fetchApi = async (endpoint, method, body = null, isFormData = false) => {
       headers,
       body: isFormData ? body : body ? JSON.stringify(body) : null,
     });
+
     if (!response.ok) {
       let errorData;
       try {
@@ -34,6 +35,12 @@ const fetchApi = async (endpoint, method, body = null, isFormData = false) => {
 
       throw new Error(errorMessage);
     }
+
+    const contentType = response.headers.get("Content-Type");
+    if (contentType && contentType.includes("application/pdf")) {
+      return response;
+    }
+
     try {
       return await response.json();
     } catch {
