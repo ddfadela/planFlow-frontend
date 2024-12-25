@@ -1,5 +1,5 @@
 const fetchApi = async (endpoint, method, body = null, isFormData = false) => {
-  const baseUrl = process.env.API_URL || "http://localhost:8000/api";
+  const baseUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   try {
     const authToken = localStorage.getItem("authToken");
     const headers = {};
@@ -11,12 +11,11 @@ const fetchApi = async (endpoint, method, body = null, isFormData = false) => {
       headers["Content-Type"] = "application/json";
     }
 
-    const response = await fetch(`${baseUrl}${endpoint}`, {
+    const response = await fetch(`${baseUrl}/api${endpoint}`, {
       method,
       headers,
       body: isFormData ? body : body ? JSON.stringify(body) : null,
     });
-
     if (!response.ok) {
       let errorData;
       try {
@@ -35,8 +34,11 @@ const fetchApi = async (endpoint, method, body = null, isFormData = false) => {
 
       throw new Error(errorMessage);
     }
-
-    return await response.json();
+    try {
+      return await response.json();
+    } catch {
+      return response;
+    }
   } catch (error) {
     console.error("Fetch error:", error.message);
     throw error;

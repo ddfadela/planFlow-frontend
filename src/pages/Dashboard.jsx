@@ -38,7 +38,7 @@ const Dashboard = () => {
   };
 
   return (
-    <Layout className="h-screen">
+    <Layout className="h-screen overflow-hidden">
       <Layout>
         <Header className="bg-blue-500 p-4 text-white flex justify-between items-center">
           <h1 className="text-xl">PlanFlow Dashboard</h1>
