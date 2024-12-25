@@ -14,3 +14,6 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+:where(.css-dev-only-do-not-override-77tu7h).ant-table-wrapper .ant-table {
+  overflow-x: auto;
+}
