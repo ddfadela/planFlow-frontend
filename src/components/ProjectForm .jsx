@@ -64,7 +64,6 @@ const ProjectForm = ({
     setIsGenerating(true);
     try {
       const api_key = process.env.REACT_APP_HUGGING_FACE_API_KEY;
-      console.log(api_key);
       const response = await fetch(
         "https://api-inference.huggingface.co/models/google/flan-t5-large",
         {
